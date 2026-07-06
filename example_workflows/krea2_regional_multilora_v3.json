@@ -1,0 +1,852 @@
+﻿{
+  "id": "fed00000-0000-4000-8000-kream2lorav3g",
+  "revision": 0,
+  "last_node_id": 100,
+  "last_link_id": 20,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "UNETLoader",
+      "pos": [
+        -1500,
+        -400
+      ],
+      "size": [
+        360,
+        82
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UNETLoader"
+      },
+      "widgets_values": [
+        "krea2_turbo_bf16.safetensors",
+        "default"
+      ],
+      "title": "1. Krea 2 Turbo UNet",
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 2,
+      "type": "CLIPLoader",
+      "pos": [
+        -1500,
+        -260
+      ],
+      "size": [
+        360,
+        106
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": [
+        "qwen3vl_4b_bf16.safetensors",
+        "krea2",
+        "default"
+      ],
+      "title": "2. Qwen3-VL (krea2)",
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 3,
+      "type": "VAELoader",
+      "pos": [
+        -1500,
+        -100
+      ],
+      "size": [
+        360,
+        58
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            18,
+            20
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "qwen_image_vae.safetensors"
+      ],
+      "title": "3. VAE (decode + ref encode)",
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 5,
+      "type": "LoraLoader",
+      "pos": [
+        -1080,
+        -400
+      ],
+      "size": [
+        340,
+        130
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 1
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            3
+          ]
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            4
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoraLoader"
+      },
+      "widgets_values": [
+        "your_global_lora.safetensors",
+        0.0,
+        0.0
+      ],
+      "title": "4. Global LoRA (optional, set strength 0 to disable)",
+      "color": "#432",
+      "bgcolor": "#210"
+    },
+    {
+      "id": 20,
+      "type": "Ideogram4PromptBuilderKJ",
+      "pos": [
+        -700,
+        -400
+      ],
+      "size": [
+        520,
+        720
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "import_json",
+          "type": "STRING",
+          "link": null,
+          "shape": 7,
+          "widget": {
+            "name": "import_json"
+          }
+        },
+        {
+          "name": "bboxes",
+          "type": "BOUNDING_BOX",
+          "link": null,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "links": [
+            9
+          ]
+        },
+        {
+          "name": "preview",
+          "type": "IMAGE",
+          "links": []
+        },
+        {
+          "name": "bboxes",
+          "type": "BOUNDING_BOX",
+          "links": [
+            5
+          ]
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            6,
+            11
+          ]
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            7,
+            12
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Ideogram4PromptBuilderKJ"
+      },
+      "widgets_values": [
+        1536,
+        1024,
+        "a single candid photograph of two people together in the same scene",
+        "outdoor cafe in a city street at golden hour, shared natural lighting on both subjects, continuous background, shallow depth of field, 50mm lens",
+        "none",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "[{\"type\": \"obj\", \"text\": \"\", \"desc\": \"a woman standing on the left\", \"palette\": [], \"x\": 0.05, \"y\": 0.1, \"w\": 0.4, \"h\": 0.85}, {\"type\": \"obj\", \"text\": \"\", \"desc\": \"a woman standing on the right\", \"palette\": [], \"x\": 0.55, \"y\": 0.1, \"w\": 0.4, \"h\": 0.85}]",
+        25,
+        "when empty",
+        "compact"
+      ],
+      "title": "5. Draw one box per character (order = region order)",
+      "color": "#226",
+      "bgcolor": "#114"
+    },
+    {
+      "id": 100,
+      "type": "Krea2RegionalMultiLoRAV3",
+      "pos": [
+        -120,
+        -400
+      ],
+      "size": [
+        480,
+        640
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 3
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 4
+        },
+        {
+          "name": "canvas_width",
+          "type": "INT",
+          "link": 6,
+          "widget": {
+            "name": "canvas_width"
+          }
+        },
+        {
+          "name": "canvas_height",
+          "type": "INT",
+          "link": 7,
+          "widget": {
+            "name": "canvas_height"
+          }
+        },
+        {
+          "name": "bboxes",
+          "type": "BOUNDING_BOX",
+          "link": 5,
+          "shape": 7
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 20,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "links": [
+            13
+          ]
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "links": [
+            8
+          ]
+        },
+        {
+          "name": "masks",
+          "type": "KREA2_MASKS",
+          "links": []
+        },
+        {
+          "name": "data",
+          "type": "KREA2_DATA",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Krea2RegionalMultiLoRAV3"
+      },
+      "widgets_values": [
+        1536,
+        1024,
+        "[\n  {\n    \"lora\": \"character_A.safetensors\",\n    \"strength\": 1.0,\n    \"enable\": true,\n    \"ref_image\": \"\"\n  },\n  {\n    \"lora\": \"character_B.safetensors\",\n    \"strength\": 1.0,\n    \"enable\": true,\n    \"ref_image\": \"\"\n  }\n]",
+        "bbox",
+        0.08,
+        0.0,
+        0.3,
+        0.0,
+        0.6,
+        0.06,
+        1.0,
+        true
+      ],
+      "title": "6. Krea2 Regional Multi-LoRA v3 + Ref Lock (By Fedor)",
+      "color": "#2a2",
+      "bgcolor": "#040"
+    },
+    {
+      "id": 50,
+      "type": "CLIPTextEncode",
+      "pos": [
+        420,
+        -60
+      ],
+      "size": [
+        380,
+        100
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 8
+        },
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 9,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            10,
+            14
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        ""
+      ],
+      "title": "7. Positive (from builder)",
+      "color": "#226",
+      "bgcolor": "#114"
+    },
+    {
+      "id": 51,
+      "type": "ConditioningZeroOut",
+      "pos": [
+        420,
+        80
+      ],
+      "size": [
+        380,
+        50
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            15
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ConditioningZeroOut"
+      },
+      "widgets_values": [],
+      "title": "8. Negative (zero-out, CFG=1)",
+      "color": "#622",
+      "bgcolor": "#411"
+    },
+    {
+      "id": 60,
+      "type": "EmptyLatentImage",
+      "pos": [
+        -120,
+        300
+      ],
+      "size": [
+        280,
+        106
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "link": 11,
+          "widget": {
+            "name": "width"
+          }
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "link": 12,
+          "widget": {
+            "name": "height"
+          }
+        },
+        {
+          "name": "batch_size",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "batch_size"
+          },
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            16
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        1536,
+        1024,
+        1
+      ],
+      "title": "9. Latent (auto-sized from builder)",
+      "color": "#226",
+      "bgcolor": "#114"
+    },
+    {
+      "id": 70,
+      "type": "KSampler",
+      "pos": [
+        860,
+        -400
+      ],
+      "size": [
+        380,
+        262
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 13
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 14
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 15
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 16
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            17
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        720229817446881,
+        "randomize",
+        9,
+        1.0,
+        "euler",
+        "bong_tangent",
+        1.0
+      ],
+      "title": "10. KSampler (euler / bong_tangent / 9 / CFG 1)",
+      "color": "#262",
+      "bgcolor": "#040"
+    },
+    {
+      "id": 80,
+      "type": "VAEDecode",
+      "pos": [
+        1290,
+        -400
+      ],
+      "size": [
+        220,
+        46
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 17
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 18
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            19
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": [],
+      "title": "11. Decode",
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 81,
+      "type": "SaveImage",
+      "pos": [
+        1560,
+        -400
+      ],
+      "size": [
+        380,
+        270
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 19
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "krea2_regional_multilora_v3"
+      ],
+      "title": "12. Save",
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 90,
+      "type": "Note",
+      "pos": [
+        -1500,
+        20
+      ],
+      "size": [
+        440,
+        460
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "krea2_regional_multilora_v3  (v3 = LoRA masking + Reference Lock)\n=============================================================\nSame chain as V2. Node 6 is the NEW v3 node: every region row\nnow has a 'load ref image' button with an inline thumbnail.\n\nWHAT v3 ADDS:\n  Each region can carry a REFERENCE IMAGE (the 'mold'). Its\n  VAE latent steers that box's in-progress latent toward the\n  reference every step during the guidance window - identity\n  anchoring on top of the LoRA masking. Ref-only rows (no\n  LoRA) work too: the box is molded toward the image.\n\nHOW TO USE:\n  1. Node 6: one row per character (LoRA + strength).\n  2. Click 'load ref image' on a row -> pick the character's\n     reference. Thumbnail appears on the node.\n  3. Node 5: draw one box per row IN THE SAME ORDER.\n  4. VAE must be wired into node 6 for refs to work.\n  5. Queue.\n\nKNOBS:\n  ref_strength 0.3   = pull per step (0.2-0.4 sane, 0.7 paste)\n  ref window 0-0.6   = guide early, release late. Shorter end\n                       (0.4) = looser pose copy from the ref.\n  ref_feather 0.06   = mask edge softness.\n  Set ref_strength 0 to disable refs entirely (pure v1 mode).\n\nNOTE: reference guidance couples pose+framing to the ref image\ninside the box (Tier-1 'latent mold'). Crop refs to face/torso\nfor identity without full-pose lock."
+      ],
+      "title": "README v3",
+      "color": "#444",
+      "bgcolor": "#222"
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      5,
+      0,
+      "MODEL"
+    ],
+    [
+      2,
+      2,
+      0,
+      5,
+      1,
+      "CLIP"
+    ],
+    [
+      3,
+      5,
+      0,
+      100,
+      0,
+      "MODEL"
+    ],
+    [
+      4,
+      5,
+      1,
+      100,
+      1,
+      "CLIP"
+    ],
+    [
+      5,
+      20,
+      2,
+      100,
+      4,
+      "BOUNDING_BOX"
+    ],
+    [
+      6,
+      20,
+      3,
+      100,
+      2,
+      "INT"
+    ],
+    [
+      7,
+      20,
+      4,
+      100,
+      3,
+      "INT"
+    ],
+    [
+      8,
+      100,
+      1,
+      50,
+      0,
+      "CLIP"
+    ],
+    [
+      9,
+      20,
+      0,
+      50,
+      1,
+      "STRING"
+    ],
+    [
+      10,
+      50,
+      0,
+      51,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      11,
+      20,
+      3,
+      60,
+      0,
+      "INT"
+    ],
+    [
+      12,
+      20,
+      4,
+      60,
+      1,
+      "INT"
+    ],
+    [
+      13,
+      100,
+      0,
+      70,
+      0,
+      "MODEL"
+    ],
+    [
+      14,
+      50,
+      0,
+      70,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      15,
+      51,
+      0,
+      70,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      16,
+      60,
+      0,
+      70,
+      3,
+      "LATENT"
+    ],
+    [
+      17,
+      70,
+      0,
+      80,
+      0,
+      "LATENT"
+    ],
+    [
+      18,
+      3,
+      0,
+      80,
+      1,
+      "VAE"
+    ],
+    [
+      19,
+      80,
+      0,
+      81,
+      0,
+      "IMAGE"
+    ],
+    [
+      20,
+      3,
+      0,
+      100,
+      5,
+      "VAE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.5,
+      "offset": [
+        1600,
+        520
+      ]
+    },
+    "frontendVersion": "1.45.20"
+  },
+  "version": 0.4
+}

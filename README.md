@@ -10,6 +10,50 @@ And it isn't just for LoRAs: paired with the Ideogram 4-style prompt builder, yo
 
 ---
 
+## NEW in v3 — Reference Lock: per-region reference images
+
+**v3 adds a second engine to the same node: every region row can now carry a reference image alongside its LoRA.** Click the "load ref image" button on any row, pick a file, and a thumbnail appears inline on the node — you can see at a glance exactly which image each LoRA is anchored to. During sampling, each reference actively steers its box's in-progress latent toward that image, on top of the LoRA masking.
+
+**v3 changelog:**
+
+- **New node: `Krea2 Regional Multi-LoRA v3 + Ref Lock`.** One node does both jobs: hard per-box LoRA masking (the v1 engine, unchanged) + per-box reference-image guidance (new).
+- **Per-row reference upload with inline thumbnails.** Each region row gets a "load ref image" button; the image uploads into ComfyUI's input folder and renders as a thumbnail directly on the node. Click the thumbnail to replace, click ✕ to clear. Filenames are stored in `regions_json`, so workflows round-trip through save/load and the API.
+- **Latent-mold guidance ("Reference Lock").** The reference is VAE-encoded once, resized into its box on the latent grid, and used as a "mold": at every sampling step inside a scheduled window, the model's predicted-clean latent is pulled toward the mold inside the box. Identity converges early; the model spends the remaining steps integrating lighting, seams, and context.
+- **Ref-only regions.** A row with a reference image but no LoRA still works — the box is molded toward the image with no LoRA involved. Useful for props, backgrounds, or characters you have images of but no trained LoRA for.
+- **Scheduled guidance window.** `ref_start_percent` / `ref_end_percent` control when the steering is active (default 0 → 0.6: lock structure early, release late).
+- **New optional `vae` input** (needed to encode references). No VAE wired = LoRA-only, exactly like v1. `ref_strength 0` also fully disables the reference engine.
+- v1 and v2 nodes are untouched and still registered — old workflows keep working unmodified.
+
+### How Reference Lock works (technical)
+
+Krea 2 has **no native reference-image pathway** — its DiT consumes a strict `[text | image]` token sequence and discards `reference_latents` (it's a pure text-to-image model). So v3 intervenes one layer up, at the **sampler**, which is model-agnostic:
+
+1. Each reference image is encoded through the VAE into latent space, converted with `process_latent_in` into the model's processing space, and bilinearly fitted into its bounding box on the latent grid. That's the **mold**.
+2. A **post-CFG hook** (`set_model_sampler_post_cfg_function`) runs after every denoising step. ComfyUI hands it the model's predicted-clean latent (`denoised` / x0). Inside the guidance window, for each region:
+
+```
+denoised = denoised + ref_strength * mask * (mold - denoised)
+```
+
+3. `mask` is the same feathered box mask family as the LoRA engine, built on the latent grid. Outside the box the correction is zero; inside, the latent moves a fixed fraction of the remaining distance toward the mold **every step**, so the region converges geometrically while staying on the sampler's trajectory.
+4. The window is converted from percents to **sigma space** (`percent_to_sigma`), so it tracks the actual noise schedule rather than step indices — correct at any step count.
+
+Because this happens post-CFG at the sampler level, it composes cleanly with the LoRA engine (which lives inside the model forward as masked activation deltas): two different intervention points, no interference. It never touches model weights, so it stays **fp8-safe**, and it works at Krea 2's native **CFG 1**.
+
+**Knobs and behavior:**
+
+| Knob | Default | What it does |
+|------|---------|--------------|
+| `ref_strength` | 0.30 | Per-step pull. 0.2–0.4 anchors identity while integrating with the scene; 0.7+ approaches a paste. 0 = off. |
+| `ref_start_percent` / `ref_end_percent` | 0.0 / 0.60 | Guidance window. Ending ~0.5–0.7 locks identity early and releases the model to blend. Shorter window = looser pose copy. |
+| `ref_feather` | 0.06 | Soft edge of the guidance mask. |
+
+**Honest caveat:** latent-mold guidance anchors *composition and identity together* — the box inherits the reference's pose and framing, not just the face. Crop references to face/torso if you want identity without a full-pose lock, or end the window earlier (`ref_end_percent 0.4`).
+
+The v3 example workflow is at `example_workflows/krea2_regional_multilora_v3.json`.
+
+---
+
 ## The Problem
 
 If you've tried loading two character LoRAs at once with a normal LoRA loader, you already know what happens: the two identities smear into each other. You ask for "Alice on the left, Bob on the right" and you get one person who's a 50/50 blend of both, in both spots.
@@ -80,7 +124,11 @@ cd ComfyUI/custom_nodes
 git clone https://github.com/CliffNodes/ComfyUI-Krea2-Regional-MultiLoRA.git
 ```
 
-Restart ComfyUI. The node appears as **Krea2 Regional Multi-LoRA** under the `Krea2` category.
+Restart ComfyUI. The nodes appear under the `Krea2/By Fedor` category:
+
+- **Krea2 Regional Multi-LoRA** — v1, LoRA masking only (stable).
+- **Krea2 Regional Multi-LoRA v3 + Ref Lock** — LoRA masking + per-region reference images (recommended).
+- **Krea2 Reference Lock / Reference Lock — Multi** — standalone reference steering (v2, for custom wiring).
 
 **Requirements:**
 - ComfyUI with Krea 2 support (a recent `master` build — needs the `Krea2` model class and `krea2_to_diffusers` LoRA key map).
