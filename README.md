@@ -12,6 +12,16 @@ And it isn't just for LoRAs: paired with the Ideogram 4-style prompt builder, yo
 
 ## NEW in v3 — Reference Lock: per-region reference images
 
+### Why v3 exists
+
+v1 solved **spatial bleeding**: two LoRAs in the same generation influencing each other's tokens. The masking guarantees LoRA A stays in box A. But that left a second, different problem on the table: **identity drift**. A LoRA gives you the *distribution* of a character, not a fixed likeness — run 20 seeds and the face wanders; generate a series of shots and shot 12 doesn't quite match shot 1. Perfect spatial isolation in every frame, and still no anchor holding the identity *constant* across generations.
+
+Those are orthogonal problems, and the community discussion around v1 made that sharp: bounding boxes prevent bleed *within* an image; nothing prevented drift *across* images. The natural fix — feed the model reference images — isn't possible on Krea 2 natively: its DiT consumes a strict `[text | image]` token sequence and discards reference latents entirely. There is no slot to attend to.
+
+So v3 adds the anchor at the only layer that allows it: the sampler. Think of it like a sculptor's mold — the reference image is cast into latent space, and every denoising step checks the in-progress latent against the mold inside the box and nudges it closer until the likeness sets. Combined with the v1 masking, each region now has both guarantees: **the LoRA can't leave its box, and the identity inside the box can't drift from its reference.**
+
+### What it does
+
 **v3 adds a second engine to the same node: every region row can now carry a reference image alongside its LoRA.** Click the "load ref image" button on any row, pick a file, and a thumbnail appears inline on the node — you can see at a glance exactly which image each LoRA is anchored to. During sampling, each reference actively steers its box's in-progress latent toward that image, on top of the LoRA masking.
 
 **v3 changelog:**
