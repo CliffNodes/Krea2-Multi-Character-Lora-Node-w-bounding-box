@@ -1,5 +1,5 @@
 """
-Krea2RegionalMultiLoRA - regional multi-LoRA for Krea 2 via masked
+Krea2RegionalMultiLoRA (By Fedor) - regional multi-LoRA for Krea 2 via masked
 activation-delta injection (unlimited regions).
 
 Each region's LoRA activation delta (x @ down.T @ up.T * scale) is added AT
@@ -440,11 +440,11 @@ class Krea2RegionalMultiLoRA:
     RETURN_TYPES = ("MODEL", "CLIP", "KREA2_MASKS", "KREA2_DATA")
     RETURN_NAMES = ("model", "clip", "masks", "data")
     FUNCTION = "apply"
-    CATEGORY = "Krea2"
+    CATEGORY = "Krea2/By Fedor"
 
     DESCRIPTION = (
-        "Regional multi-LoRA for Krea 2. Each region's LoRA activation delta is "
-        "injected at forward time ONLY into the image tokens inside its bounding "
+        "Krea2 Regional Multi-LoRA (By Fedor). Each region's LoRA activation delta "
+        "is injected at forward time ONLY into the image tokens inside its bounding "
         "box, so LoRAs physically cannot act outside their region. Add as many "
         "regions as you want. Wire model in -> model out to KSampler."
     )
@@ -573,5 +573,5 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "Krea2RegionalMultiLoRA": "Krea2 Regional Multi-LoRA",
+    "Krea2RegionalMultiLoRA": "Krea2 Regional Multi-LoRA (By Fedor)",
 }

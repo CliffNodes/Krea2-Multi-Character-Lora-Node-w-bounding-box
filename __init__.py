@@ -1,5 +1,5 @@
 """
-ComfyUI-Krea2-Regional-MultiLoRA
+ComfyUI-Krea2-Regional-MultiLoRA (By Fedor)
 
 Regional multi-LoRA for Krea 2 via masked activation-delta injection. Each
 region's LoRA is constrained to its bounding box at forward time - a hard

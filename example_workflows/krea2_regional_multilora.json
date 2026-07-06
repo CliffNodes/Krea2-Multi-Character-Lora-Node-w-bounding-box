@@ -147,7 +147,7 @@
         1.0,
         true
       ],
-      "title": "6. Krea2 Regional Multi-LoRA (rows auto-sync to boxes)",
+      "title": "6. Krea2 Regional Multi-LoRA by Fedor (rows auto-sync to boxes)",
       "color": "#2a2",
       "bgcolor": "#040"
     },
@@ -274,7 +274,7 @@
       "outputs": [],
       "properties": {"Node name for S&R": "Note"},
       "widgets_values": [
-        "Krea2 Regional Multi-LoRA\n==========================\nEach LoRA's activation delta is injected AT FORWARD TIME only into\nthe image tokens inside its bounding box. A LoRA physically cannot\nact outside its region.\n\nHOW TO USE:\n  1. Node 4 - optional global LoRA (strength 0 = skip).\n  2. Node 5 - write the scene prompt, then draw one box per\n     character, in order (left to right). As you draw, region rows\n     appear automatically in Node 6.\n  3. Node 6 - pick the LoRA for each row. Row 1 -> box 1, etc.\n  4. Queue.\n\nMODELS:\n  UNet : krea2_turbo_bf16.safetensors\n  CLIP : qwen3vl_4b_bf16.safetensors  (CLIPLoader type=krea2)\n  VAE  : qwen_image_vae.safetensors\n\nSETTINGS (Node 6):\n  split_mode     bbox  = use drawn boxes\n  seam_feather   0.08  = edge softness (raise if seams show)\n  blend_override 0     = clean split (keep at 0)\n\nSampler: euler / bong_tangent / 9 steps / CFG 1."
+        "Krea2 Regional Multi-LoRA  (By Fedor)\n======================================\nEach LoRA's activation delta is injected AT FORWARD TIME only into\nthe image tokens inside its bounding box. A LoRA physically cannot\nact outside its region.\n\nHOW TO USE:\n  1. Node 4 - optional global LoRA (strength 0 = skip).\n  2. Node 5 - write the scene prompt, then draw one box per\n     character, in order (left to right). As you draw, region rows\n     appear automatically in Node 6.\n  3. Node 6 - pick the LoRA for each row. Row 1 -> box 1, etc.\n  4. Queue.\n\nMODELS:\n  UNet : krea2_turbo_bf16.safetensors\n  CLIP : qwen3vl_4b_bf16.safetensors  (CLIPLoader type=krea2)\n  VAE  : qwen_image_vae.safetensors\n\nSETTINGS (Node 6):\n  split_mode     bbox  = use drawn boxes\n  seam_feather   0.08  = edge softness (raise if seams show)\n  blend_override 0     = clean split (keep at 0)\n\nSampler: euler / bong_tangent / 9 steps / CFG 1."
       ],
       "title": "README \u2014 read first",
       "color": "#444",

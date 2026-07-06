@@ -1,4 +1,4 @@
-// Krea2 Regional Multi-LoRA - dynamic region rows.
+// Krea2 Regional Multi-LoRA (By Fedor) - dynamic region rows.
 //
 // Adds an "+ Add Region" button and, per region, a LoRA combo + strength +
 // enable toggle + remove button. All rows are serialized into the node's

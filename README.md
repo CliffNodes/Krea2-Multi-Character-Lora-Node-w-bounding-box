@@ -1,4 +1,4 @@
-# ComfyUI Krea2 Regional Multi-LoRA
+# ComfyUI Krea2 Regional Multi-LoRA — By Fedor
 
 **Put multiple character LoRAs in one image — each one locked to its own box. Plus full bounding-box layout control for objects and any non-LoRA element.**
 
@@ -182,6 +182,7 @@ MIT. See `LICENSE`.
 
 ## Credits
 
+- **Node by Fedor.**
 - Built on ComfyUI's model-wrapper / forward-hook system.
 - Example workflow uses [`Ideogram4PromptBuilderKJ`](https://github.com/kijai/ComfyUI-KJNodes) by kijai for the box-drawing canvas.
 - Krea 2 by Krea. Character LoRA training via [ai-toolkit](https://github.com/ostris/ai-toolkit) by ostris.
