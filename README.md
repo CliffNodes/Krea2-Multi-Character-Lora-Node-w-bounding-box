@@ -77,7 +77,7 @@ So the workflow is a single, unified layout tool: sketch the whole scene as boxe
 
 ```bash
 cd ComfyUI/custom_nodes
-git clone https://github.com/CliffNodes/Krea2-Multi-Character-Lora-Node-w-bounding-box-By-Fedor.git
+git clone https://github.com/CliffNodes/ComfyUI-Krea2-Regional-MultiLoRA.git
 ```
 
 Restart ComfyUI. The node appears as **Krea2 Regional Multi-LoRA** under the `Krea2` category.

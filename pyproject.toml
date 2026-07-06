@@ -11,7 +11,7 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/CliffNodes/Krea2-Multi-Character-Lora-Node-w-bounding-box-By-Fedor"
+Repository = "https://github.com/CliffNodes/ComfyUI-Krea2-Regional-MultiLoRA"
 
 [tool.comfy]
 PublisherId = "CliffNodes"
