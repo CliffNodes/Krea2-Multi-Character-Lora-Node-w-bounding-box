@@ -29,6 +29,7 @@ regions_json schema:
 import json
 import logging
 import math
+import os
 import re
 import weakref
 
@@ -372,7 +373,18 @@ def _iter_named_linears(module):
 
 def _resolve_lora_path(name):
     p = folder_paths.get_full_path("loras", name)
-    return p or name
+    if p:
+        return p
+    if os.path.isfile(name):
+        return name  # hand-typed absolute path outside the loras folders
+    # Falling through with the raw name used to fail several frames later inside
+    # safetensors as a bare FileNotFoundError, which reads like a bug in the
+    # node. Name the row's LoRA and where it was looked for instead.
+    raise FileNotFoundError(
+        f"LoRA '{name}' was not found in any models/loras folder. Pick it from a "
+        "Krea2 Character node's lora_name dropdown - names typed into "
+        "regions_json are never checked against disk."
+    )
 
 
 # ---------------------------------------------------------------------------

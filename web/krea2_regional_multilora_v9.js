@@ -588,6 +588,10 @@ app.registerExtension({
       if (addBtn.options) addBtn.options.serialize = false;
 
       coerceWidgetTypes(this);
+      // Let the character-chain extension refresh these rows when the
+      // chain writes regions_json.
+      this.__k2rebuildRows = () => rebuildRows(this);
+
       rebuildRows(this);
       return r;
     };

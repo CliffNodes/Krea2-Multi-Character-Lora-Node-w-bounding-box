@@ -1,5 +1,85 @@
 # Changelog
 
+## Unreleased — `Krea2 Character`: people as inputs, not JSON
+
+### New node: `Krea2 Character (By Fedor)`
+
+One node per person, chained into V3 / V9 / V12 through a new `characters`
+input. Each node carries a **real LoRA dropdown** (`lora_name`), `strength`,
+`enable`, an **`ref_image` IMAGE socket**, plus `prompt`, `name`, `ref_enable`
+and `portrait`.
+
+```
+[Character 1] → [Character 2] → [Krea2 Regional Multi-LoRA V3/V9/V12]
+```
+
+Chain order is box order, exactly like the region rows it replaces.
+
+Why: `regions_json` was the only way to set a LoRA from the API, and a free-typed
+name was never checked against disk — a typo or the copied doc placeholder
+`character_A.safetensors` surfaced several frames later as a bare
+`FileNotFoundError` from inside safetensors. A dropdown makes that class of
+failure impossible. The IMAGE socket also lifts the old restriction that a
+reference had to be uploaded through the node's own button: any `IMAGE` source
+works now (LoadImage, a crop, an upscale).
+
+**The chain writes `regions_json` for you.** `web/krea2_character.js` walks the
+chain in the browser and populates the region rows live, so LoRA names,
+strengths and prompts appear in the existing row UI the moment you wire or edit
+a character — the chain is visibly the thing driving the render, not an
+invisible override. Unwiring restores the text that was there before.
+
+Reference images stay on their sockets and leave `ref_image` blank in the rows:
+a wired ref is a live IMAGE tensor with no filename, so a placeholder would
+break the row's thumbnail fetch and linger as a dead filename if the chain were
+deleted. The badge under the node reports how many characters carry one.
+
+At render time the server still rebuilds the rows from the chain, so API calls
+and headless runs behave identically to the UI.
+
+`characters` is declared **last** in `optional` and with **`forceInput: True`**,
+for the two reasons the surrounding code already documents:
+
+- widget order is the workflow save format, so inserting above existing widgets
+  re-reads every later value in saved graphs (the bug that once put `1536` into
+  `edit_lora`);
+- without `forceInput` the frontend attaches a widget slot to the input, which
+  serialises a `null` into both `widgets_values` and the API prompt. That null
+  overrides the wired link, the chain arrives as `None`, and the node renders
+  from `regions_json` — LoRAs silently absent from the result.
+
+The browser-side chain walk uses `node.getInputNode()` rather than indexing
+`app.graph.links`, which is a `Map` in frontend 1.48.x and a plain object in
+older builds; indexing it directly returns `undefined` and reads as "nothing is
+wired".
+
+### Tests
+
+`pytest tests/` — 57 tests, no GPU and no model weights required. A stub
+ModelPatcher captures the armed wrapper and post-CFG hook, and a stub VAE
+encodes each reference to a constant latent equal to its mean pixel value, so
+"did this character's reference reach this character's box" is read straight off
+the denoised tensor. LoRAs are tiny generated safetensors in a private folder
+registered via `add_model_folder_path`, so the suite never touches real models.
+
+Covered: chain building and ordering, the JSON transport (including the
+double-wrap unwrap and the loud garbage fallback), the ref-tensor registry and
+its bound, `_resolve_lora_path`, the INPUT_TYPES invariants (`characters` last,
+`forceInput`, V12 inheriting V9), and end-to-end `apply` — LoRA scaling by
+`base_strength`, box re-claiming when a character is disabled, `ref_enable`,
+missing VAE, and the sampling window.
+
+The config lives in `tests/pytest.ini` on purpose: this directory is a package,
+so a rootdir above it makes pytest build a Package collector and import
+`__init__.py` standalone, where its relative imports fail before any test runs.
+
+### Fixed
+
+- `_resolve_lora_path` no longer falls through with an unresolved name. A LoRA
+  that isn't in any `models/loras` folder now raises at the node, naming the
+  file and where it was looked for, instead of failing later inside
+  `safetensors.torch.load_file`. Hand-typed absolute paths still work.
+
 ## 2.0.0 — V12 Unified Spatial + krea2edit + Regional Detailer
 
 The headline: **bounding boxes now control WHERE and HOW LARGE each subject

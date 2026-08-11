@@ -402,6 +402,10 @@ app.registerExtension({
       });
       addBtn.__k2add = true;
 
+      // Let the character-chain extension refresh these rows when the
+      // chain writes regions_json.
+      this.__k2rebuildRows = () => rebuildRows(this);
+
       rebuildRows(this);
       return r;
     };

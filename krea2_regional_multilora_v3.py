@@ -53,6 +53,7 @@ from .krea2_reference_lock import (
     _in_window,
     _sigma_window,
 )
+from .krea2_character import characters_to_regions_json, lookup_ref_tensor
 
 WRAPPER_KEY_V3 = "krea2_regional_multilora_v3"
 
@@ -86,7 +87,16 @@ def _parse_regions_v3(regions_json: str) -> list:
 
 
 def _load_ref_image_tensor(name):
-    """Input-folder image -> ComfyUI IMAGE tensor [1,H,W,3] float 0..1."""
+    """Reference image -> ComfyUI IMAGE tensor [1,H,W,3] float 0..1.
+
+    A wired Krea2Character hands its IMAGE over as a sentinel filename (a tensor
+    cannot travel inside regions_json); anything else is a real file in the input
+    folder, uploaded by the in-node 'load ref' button.
+    """
+    wired = lookup_ref_tensor(name)
+    if wired is not None:
+        img = wired if wired.dim() == 4 else wired.unsqueeze(0)
+        return img[:1].float()
     path = folder_paths.get_annotated_filepath(name)
     img = Image.open(path)
     img = ImageOps.exif_transpose(img).convert("RGB")
@@ -173,6 +183,23 @@ class Krea2RegionalMultiLoRAV3:
                     "default": True,
                     "tooltip": "Emit a '__background__' mask in the masks output (debug only).",
                 }),
+                # Appended last on purpose: widget order is the workflow save
+                # format, so anything inserted above re-reads every later value
+                # in existing saves. See the same note in V9.
+                "characters": ("KREA2_CHARACTERS", {
+                    # forceInput for the same reason as bboxes: without it the
+                    # frontend hands this a widget slot, which serialises a null
+                    # into widgets_values AND into the API prompt - overriding
+                    # the wired link, so the chain arrives as None and the node
+                    # silently renders from regions_json instead.
+                    "forceInput": True,
+                    "tooltip": (
+                        "Chain of Krea2 Character nodes - one per person, each with a "
+                        "real LoRA dropdown and an IMAGE socket for its reference. "
+                        "Wiring this REPLACES regions_json entirely; chain order is "
+                        "box order. Unwire to fall back to the region rows above."
+                    ),
+                }),
             },
         }
 
@@ -207,7 +234,10 @@ class Krea2RegionalMultiLoRAV3:
         vae=None,
         base_strength=1.0,
         include_background=True,
+        characters=None,
     ):
+        # A wired character chain is authoritative; regions_json is the fallback.
+        regions_json = characters_to_regions_json(characters, regions_json)
         regions = _parse_regions_v3(regions_json)
 
         def has_lora(r):

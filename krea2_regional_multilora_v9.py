@@ -56,6 +56,7 @@ from .krea2_regional_multilora import (
     _RegionalSession,
 )
 from .krea2_regional_multilora_v3 import _load_ref_image_tensor, _parse_regions_v3
+from .krea2_character import characters_to_regions_json
 from .krea2_regional_edit_patch import _parse_box
 from .krea2_reference_lock import (
     _blend_ref_molds,
@@ -865,6 +866,22 @@ class Krea2RegionalMultiLoRAV9(Krea2RegionalMultiLoRAV7):
                         "cost, and those are controlled per region."
                     ),
                 }),
+                # LAST, per the widget-order note above.
+                "characters": ("KREA2_CHARACTERS", {
+                    # forceInput for the same reason as bboxes: without it the
+                    # frontend hands this a widget slot, which serialises a null
+                    # into widgets_values AND into the API prompt - overriding
+                    # the wired link, so the chain arrives as None and the node
+                    # silently renders from regions_json instead.
+                    "forceInput": True,
+                    "tooltip": (
+                        "Chain of Krea2 Character nodes - one per person, each with a "
+                        "real LoRA dropdown, an IMAGE socket for its reference photo "
+                        "and its own prompt. The chain writes the region rows above "
+                        "for you and REPLACES regions_json at render time; chain "
+                        "order is box order."
+                    ),
+                }),
             },
         }
 
@@ -919,7 +936,13 @@ class Krea2RegionalMultiLoRAV9(Krea2RegionalMultiLoRAV7):
         ref_max_side=1024,
         portrait_preview=True,
         force_edit_mode=False,  # legacy alias from early V9 builds
+        characters=None,
     ):
+        # A wired character chain is authoritative; regions_json is the fallback.
+        # Rewriting it here covers every downstream path (V2 likeness, edit mode,
+        # portraits) and V12, which inherits this method verbatim.
+        regions_json = characters_to_regions_json(characters, regions_json)
+
         # Stale graphs (pre-reorder V9 saves) can hand us a number here.
         if not isinstance(edit_lora, str) or not edit_lora.endswith(".safetensors"):
             choices = _edit_lora_choices()

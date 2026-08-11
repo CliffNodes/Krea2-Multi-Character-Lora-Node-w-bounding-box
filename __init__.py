@@ -23,6 +23,10 @@ from .krea2_regional_multilora_v3 import (
     NODE_CLASS_MAPPINGS as _V3_CLASSES,
     NODE_DISPLAY_NAME_MAPPINGS as _V3_NAMES,
 )
+from .krea2_regional_multilora_v7 import (
+    NODE_CLASS_MAPPINGS as _V7_CLASSES,
+    NODE_DISPLAY_NAME_MAPPINGS as _V7_NAMES,
+)
 from .krea2_regional_multilora_v9 import (
     NODE_CLASS_MAPPINGS as _V9_CLASSES,
     NODE_DISPLAY_NAME_MAPPINGS as _V9_NAMES,
@@ -35,14 +39,24 @@ from .krea2_regional_detailer import (
     NODE_CLASS_MAPPINGS as _DETAILER_CLASSES,
     NODE_DISPLAY_NAME_MAPPINGS as _DETAILER_NAMES,
 )
+from .krea2_regional_edit_patch import (
+    NODE_CLASS_MAPPINGS as _EDITPATCH_CLASSES,
+    NODE_DISPLAY_NAME_MAPPINGS as _EDITPATCH_NAMES,
+)
+from .krea2_character import (
+    NODE_CLASS_MAPPINGS as _CHARACTER_CLASSES,
+    NODE_DISPLAY_NAME_MAPPINGS as _CHARACTER_NAMES,
+)
 
 NODE_CLASS_MAPPINGS = {
     **_MULTILORA_CLASSES, **_REFLOCK_CLASSES, **_V3_CLASSES,
-    **_V9_CLASSES, **_V12_CLASSES, **_DETAILER_CLASSES,
+    **_V7_CLASSES, **_V9_CLASSES, **_V12_CLASSES, **_DETAILER_CLASSES,
+    **_EDITPATCH_CLASSES, **_CHARACTER_CLASSES,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     **_MULTILORA_NAMES, **_REFLOCK_NAMES, **_V3_NAMES,
-    **_V9_NAMES, **_V12_NAMES, **_DETAILER_NAMES,
+    **_V7_NAMES, **_V9_NAMES, **_V12_NAMES, **_DETAILER_NAMES,
+    **_EDITPATCH_NAMES, **_CHARACTER_NAMES,
 }
 
 # Brand every node in this package consistently without changing its internal
